@@ -27,6 +27,24 @@ This tool provides a simple interface to query and download geospatial data from
 pip install -r requirements.txt
 ```
 
+## Important Note: API Access
+
+The Crown Land Atlas API may have access restrictions. If you encounter a `403 Forbidden` error:
+
+1. **Run diagnostics first:**
+   ```bash
+   python diagnostics.py
+   ```
+
+2. **Try the alternative data catalogue:**
+   ```bash
+   python ontario_data_catalogue.py
+   ```
+
+3. **See [TROUBLESHOOTING.md](TROUBLESHOOTING.md)** for detailed solutions
+
+The API may only be accessible from within Ontario government networks. Alternative data sources are provided through Ontario's open data portal.
+
 ## Usage
 
 ### Python API

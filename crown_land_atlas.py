@@ -32,16 +32,19 @@ class CrownLandAtlas:
             'User-Agent': 'Crown-Land-Atlas-Tool/1.0'
         })
 
-    def _build_url(self, endpoint: str) -> str:
+    def _build_url(self, endpoint: str, params: Optional[Dict] = None) -> str:
         """
         Build a complete URL using the proxy.
 
         Args:
             endpoint: The service endpoint path
+            params: Query parameters to include in the target URL
 
         Returns:
             Complete proxied URL
         """
+        from urllib.parse import urlencode
+
         if endpoint.startswith('http'):
             full_url = endpoint
         else:
@@ -49,6 +52,12 @@ class CrownLandAtlas:
             endpoint = endpoint.lstrip('/')
             full_url = f"{self.BASE_URL}/{endpoint}"
 
+        # Add parameters to the target URL before proxying
+        if params:
+            param_str = urlencode(params)
+            full_url = f"{full_url}?{param_str}"
+
+        # Construct proxy URL
         return f"{self.PROXY_URL}{full_url}"
 
     def _make_request(self, endpoint: str, params: Optional[Dict] = None) -> Dict:
@@ -68,10 +77,20 @@ class CrownLandAtlas:
         # Ensure JSON format for response
         params['f'] = 'json'
 
-        url = self._build_url(endpoint)
+        # Build URL with params embedded (they need to be part of the proxied URL)
+        url = self._build_url(endpoint, params)
+
+        # Add browser-like headers to avoid being blocked
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Accept': 'application/json, text/plain, */*',
+            'Accept-Language': 'en-US,en;q=0.9',
+            'Referer': 'https://www.lioapplications.lrc.gov.on.ca/'
+        }
 
         try:
-            response = self.session.get(url, params=params, timeout=self.timeout)
+            # Don't pass params again since they're already in the URL
+            response = self.session.get(url, headers=headers, timeout=self.timeout)
             response.raise_for_status()
 
             data = response.json()

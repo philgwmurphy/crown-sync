@@ -13,6 +13,19 @@ cd crown-sync
 pip install -r requirements.txt
 ```
 
+## ⚠️ Important: Check API Access First
+
+Before proceeding, test if you can access the API:
+
+```bash
+python diagnostics.py
+```
+
+**If you get 403 Forbidden errors:**
+- The API may be restricted to Ontario government networks
+- Use the alternative data catalogue: `python ontario_data_catalogue.py`
+- See [TROUBLESHOOTING.md](TROUBLESHOOTING.md) for solutions
+
 ## Your First Query
 
 ### Step 1: List Available Services
