@@ -1,5 +1,34 @@
 # Troubleshooting Guide
 
+## DNS Resolution Error (Most Common)
+
+**Error:** `Failed to resolve 'intra.ws.lioservices.lrc.gov.on.ca'`
+
+### Cause
+
+The hostname uses `intra.` which means **internal-only**. This domain doesn't exist in public DNS and can only be accessed from:
+- Ontario government office networks
+- Government VPN connections
+- Whitelisted IP addresses
+
+### Solution
+
+**You cannot access this URL from the public internet.** Use alternatives instead:
+
+1. **Ontario Data Catalogue:**
+   ```bash
+   python ontario_data_catalogue.py
+   ```
+
+2. **Public LIO Services:**
+   ```bash
+   python public_ontario_data.py
+   ```
+
+3. **Download manually from:** https://data.ontario.ca/
+
+See [API_ACCESS_EXPLAINED.md](API_ACCESS_EXPLAINED.md) for complete details.
+
 ## 403 Forbidden Error
 
 If you're getting a `403 Forbidden` error when accessing the Crown Land Atlas API, this is a common issue. Here are the causes and solutions:

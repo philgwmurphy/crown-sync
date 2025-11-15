@@ -27,23 +27,30 @@ This tool provides a simple interface to query and download geospatial data from
 pip install -r requirements.txt
 ```
 
-## Important Note: API Access
+## ⚠️ IMPORTANT: API Access Issue
 
-The Crown Land Atlas API may have access restrictions. If you encounter a `403 Forbidden` error:
+**The default API endpoint is INTERNAL-ONLY and won't work from the public internet.**
 
-1. **Run diagnostics first:**
-   ```bash
-   python diagnostics.py
-   ```
+The hostname `intra.ws.lioservices.lrc.gov.on.ca` is only accessible from Ontario government networks. You'll get DNS resolution errors or 403 Forbidden.
 
-2. **Try the alternative data catalogue:**
+### ✅ What Works - Use These Instead:
+
+1. **Ontario Data Catalogue** (easiest):
    ```bash
    python ontario_data_catalogue.py
    ```
+   Download Crown Land datasets from https://data.ontario.ca/
 
-3. **See [TROUBLESHOOTING.md](TROUBLESHOOTING.md)** for detailed solutions
+2. **Public LIO Services**:
+   ```bash
+   python public_ontario_data.py
+   ```
+   Access public map services at `ws.lioservices.lrc.gov.on.ca`
 
-The API may only be accessible from within Ontario government networks. Alternative data sources are provided through Ontario's open data portal.
+3. **Ontario GeoHub**: https://geohub.lio.gov.on.ca/
+   Browse and download data through web interface
+
+**See [API_ACCESS_EXPLAINED.md](API_ACCESS_EXPLAINED.md) for complete details.**
 
 ## Usage
 
@@ -94,10 +101,16 @@ python -m crown_land_atlas query "ServiceName/MapServer" \
 
 ## API Endpoints
 
+### Internal (Not Publicly Accessible)
 - Base Service URL: `https://intra.ws.lioservices.lrc.gov.on.ca/arcgis4/rest/services/CLUPA`
-- Proxy URL: `https://www.lioapplications.lrc.gov.on.ca/services/proxy/proxy.ashx?`
+- **Note:** The `intra.` subdomain is internal-only and requires Ontario government network access
 
-All requests are routed through the proxy to access the internal services.
+### Public Alternatives
+- Public LIO Services: `https://ws.lioservices.lrc.gov.on.ca/arcgis1/rest/services`
+- Ontario Data Catalogue: `https://data.ontario.ca/`
+- Ontario GeoHub: `https://geohub.lio.gov.on.ca/`
+
+Use the public alternatives or download datasets from the data catalogue.
 
 ## Mapbox Integration
 

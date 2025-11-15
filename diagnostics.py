@@ -27,7 +27,7 @@ def test_url(description, url, headers=None):
         print(f"Content Length: {len(response.content)} bytes")
 
         if response.status_code == 200:
-            print("✓ SUCCESS")
+            print("[SUCCESS]")
             try:
                 data = response.json()
                 print(f"Response preview: {json.dumps(data, indent=2)[:500]}...")
@@ -36,12 +36,12 @@ def test_url(description, url, headers=None):
                 print(f"Response preview: {response.text[:500]}...")
                 return True, response.text
         else:
-            print(f"✗ FAILED: {response.status_code} {response.reason}")
+            print(f"[FAILED] {response.status_code} {response.reason}")
             print(f"Response: {response.text[:500]}")
             return False, None
 
     except Exception as e:
-        print(f"✗ ERROR: {str(e)}")
+        print(f"[ERROR] {str(e)}")
         return False, None
 
 
