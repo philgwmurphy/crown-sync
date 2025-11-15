@@ -1,0 +1,67 @@
+# GitHub Actions workflow for automated Crown Land data sync
+# Place this file in .github/workflows/sync-crown-land.yml
+
+name: Sync Crown Land Data to Mapbox
+
+on:
+  # Run on a schedule (daily at 2 AM UTC)
+  schedule:
+    - cron: '0 2 * * *'
+
+  # Allow manual triggering
+  workflow_dispatch:
+
+  # Run on push to main (optional)
+  # push:
+  #   branches:
+  #     - main
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Sync data to Mapbox
+        env:
+          MAPBOX_ACCESS_TOKEN: ${{ secrets.MAPBOX_ACCESS_TOKEN }}
+        run: |
+          python sync_to_mapbox.py --config config.json
+
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: sync-logs
+          path: logs/
+          retention-days: 30
+
+      # Optional: Send notification on failure
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "Sync failed! Check the logs for details."
+          # Add your notification logic here (email, Slack, etc.)
+
+# Setup Instructions:
+# 1. Copy this file to .github/workflows/sync-crown-land.yml in your repository
+# 2. Add your Mapbox access token as a repository secret:
+#    - Go to Settings > Secrets and variables > Actions
+#    - Click "New repository secret"
+#    - Name: MAPBOX_ACCESS_TOKEN
+#    - Value: Your Mapbox access token
+# 3. Create a config.json file in the repository root
+# 4. Commit and push to enable the workflow
+# 5. The workflow will run automatically on schedule or can be triggered manually

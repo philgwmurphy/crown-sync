@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Ontario Crown Land Atlas Map</title>
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+    <link href="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.css" rel="stylesheet">
+    <script src="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        #map {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 100%;
+        }
+
+        .info-panel {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            max-width: 350px;
+            z-index: 1;
+        }
+
+        .info-panel h1 {
+            margin: 0 0 10px 0;
+            font-size: 20px;
+            color: #333;
+        }
+
+        .info-panel p {
+            margin: 5px 0;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .legend {
+            position: absolute;
+            bottom: 30px;
+            right: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 1;
+        }
+
+        .legend h3 {
+            margin: 0 0 10px 0;
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 5px 0;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            margin-right: 8px;
+            border-radius: 3px;
+            border: 1px solid #ddd;
+        }
+
+        .mapboxgl-popup-content {
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .popup-field {
+            margin: 5px 0;
+            font-size: 13px;
+        }
+
+        .popup-field strong {
+            color: #333;
+        }
+
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .layer-toggle {
+            margin: 10px 0;
+            font-size: 14px;
+        }
+
+        .layer-toggle input {
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="loading" class="loading">Loading map...</div>
+
+<div class="info-panel">
+    <h1>Ontario Crown Land Atlas</h1>
+    <p>Explore crown land data across Ontario</p>
+    <p><small>Last updated: <span id="last-update">Loading...</span></small></p>
+
+    <div id="layer-controls">
+        <!-- Layer toggles will be added here -->
+    </div>
+</div>
+
+<div class="legend" id="legend">
+    <h3>Legend</h3>
+    <div class="legend-item">
+        <div class="legend-color" style="background-color: #2E7D32;"></div>
+        <span>Crown Land</span>
+    </div>
+    <div class="legend-item">
+        <div class="legend-color" style="background-color: #1976D2;"></div>
+        <span>Water Features</span>
+    </div>
+    <div class="legend-item">
+        <div class="legend-color" style="background-color: #FFA726;"></div>
+        <span>Protected Areas</span>
+    </div>
+</div>
+
+<div id="map"></div>
+
+<script src="config.js"></script>
+<script>
+    // Initialize the map
+    mapboxgl.accessToken = CONFIG.MAPBOX_ACCESS_TOKEN;
+
+    const map = new mapboxgl.Map({
+        container: 'map',
+        style: 'mapbox://styles/mapbox/outdoors-v12',
+        center: CONFIG.DEFAULT_CENTER,
+        zoom: CONFIG.DEFAULT_ZOOM
+    });
+
+    // Add navigation controls
+    map.addControl(new mapboxgl.NavigationControl(), 'top-right');
+    map.addControl(new mapboxgl.ScaleControl(), 'bottom-left');
+
+    // Track loaded layers
+    const loadedLayers = new Set();
+
+    map.on('load', () => {
+        // Hide loading indicator
+        document.getElementById('loading').classList.add('hidden');
+
+        // Add each configured layer
+        CONFIG.LAYERS.forEach((layerConfig, index) => {
+            addCrownLandLayer(layerConfig, index);
+        });
+
+        // Set last update time
+        document.getElementById('last-update').textContent = new Date().toLocaleDateString();
+    });
+
+    function addCrownLandLayer(layerConfig, index) {
+        const sourceId = `crown-land-source-${index}`;
+        const layerId = `crown-land-layer-${index}`;
+
+        // Add source
+        map.addSource(sourceId, {
+            type: 'vector',
+            url: `mapbox://${CONFIG.MAPBOX_USERNAME}.${layerConfig.tileset_name}`
+        });
+
+        // Determine layer style based on geometry type
+        const paintStyle = getPaintStyle(layerConfig.geometry_type, layerConfig.color);
+
+        // Add layer
+        if (layerConfig.geometry_type === 'polygon' || layerConfig.geometry_type === 'fill') {
+            // Polygon fill
+            map.addLayer({
+                id: layerId,
+                type: 'fill',
+                source: sourceId,
+                'source-layer': layerConfig.tileset_name,
+                paint: paintStyle.fill,
+                layout: {
+                    visibility: layerConfig.visible !== false ? 'visible' : 'none'
+                }
+            });
+
+            // Polygon outline
+            map.addLayer({
+                id: `${layerId}-outline`,
+                type: 'line',
+                source: sourceId,
+                'source-layer': layerConfig.tileset_name,
+                paint: paintStyle.outline
+            });
+        } else if (layerConfig.geometry_type === 'line') {
+            map.addLayer({
+                id: layerId,
+                type: 'line',
+                source: sourceId,
+                'source-layer': layerConfig.tileset_name,
+                paint: paintStyle.line
+            });
+        } else {
+            // Point
+            map.addLayer({
+                id: layerId,
+                type: 'circle',
+                source: sourceId,
+                'source-layer': layerConfig.tileset_name,
+                paint: paintStyle.circle
+            });
+        }
+
+        loadedLayers.add(layerId);
+
+        // Add click handler for popups
+        map.on('click', layerId, (e) => {
+            const feature = e.features[0];
+            createPopup(feature, e.lngLat, layerConfig.popup_fields);
+        });
+
+        // Change cursor on hover
+        map.on('mouseenter', layerId, () => {
+            map.getCanvas().style.cursor = 'pointer';
+        });
+
+        map.on('mouseleave', layerId, () => {
+            map.getCanvas().style.cursor = '';
+        });
+
+        // Add layer toggle control
+        addLayerToggle(layerId, layerConfig.name || layerConfig.tileset_name);
+    }
+
+    function getPaintStyle(geometryType, color = '#2E7D32') {
+        return {
+            fill: {
+                'fill-color': color,
+                'fill-opacity': 0.6
+            },
+            outline: {
+                'line-color': color,
+                'line-width': 2
+            },
+            line: {
+                'line-color': color,
+                'line-width': 2
+            },
+            circle: {
+                'circle-color': color,
+                'circle-radius': 6,
+                'circle-stroke-width': 2,
+                'circle-stroke-color': '#ffffff'
+            }
+        };
+    }
+
+    function createPopup(feature, lngLat, popupFields) {
+        const properties = feature.properties;
+
+        // Determine which fields to show
+        const fieldsToShow = popupFields || Object.keys(properties).slice(0, 10);
+
+        let html = '<div>';
+        fieldsToShow.forEach(field => {
+            if (properties[field] !== null && properties[field] !== undefined) {
+                html += `<div class="popup-field"><strong>${field}:</strong> ${properties[field]}</div>`;
+            }
+        });
+        html += '</div>';
+
+        new mapboxgl.Popup()
+            .setLngLat(lngLat)
+            .setHTML(html)
+            .addTo(map);
+    }
+
+    function addLayerToggle(layerId, layerName) {
+        const controls = document.getElementById('layer-controls');
+
+        const toggle = document.createElement('div');
+        toggle.className = 'layer-toggle';
+
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.id = `toggle-${layerId}`;
+        checkbox.checked = true;
+
+        checkbox.addEventListener('change', (e) => {
+            const visibility = e.target.checked ? 'visible' : 'none';
+            map.setLayoutProperty(layerId, 'visibility', visibility);
+
+            // Also toggle outline if it exists
+            const outlineId = `${layerId}-outline`;
+            if (map.getLayer(outlineId)) {
+                map.setLayoutProperty(outlineId, 'visibility', visibility);
+            }
+        });
+
+        const label = document.createElement('label');
+        label.htmlFor = `toggle-${layerId}`;
+        label.textContent = layerName;
+
+        toggle.appendChild(checkbox);
+        toggle.appendChild(label);
+        controls.appendChild(toggle);
+    }
+
+    // Refresh data function (can be called periodically)
+    function refreshData() {
+        console.log('Refreshing map data...');
+        // In a production setup, you could check for updates and reload sources
+        // For now, this would require a page refresh after syncing new data
+        location.reload();
+    }
+
+    // Optional: Auto-refresh every hour
+    // setInterval(refreshData, 60 * 60 * 1000);
+</script>
+
+</body>
+</html>
