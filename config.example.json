@@ -1,0 +1,27 @@
+{
+  "mapbox_access_token": "YOUR_MAPBOX_ACCESS_TOKEN_HERE",
+  "layers": [
+    {
+      "service_name": "ServiceName/MapServer",
+      "layer_id": 0,
+      "tileset_name": "crown_land_parcels",
+      "where": "1=1",
+      "description": "All crown land parcels"
+    },
+    {
+      "service_name": "ServiceName/MapServer",
+      "layer_id": 1,
+      "tileset_name": "protected_areas",
+      "where": "STATUS = 'Protected'",
+      "max_records": 10000,
+      "description": "Protected crown land areas only"
+    }
+  ],
+  "update_schedule": "Daily at 2:00 AM",
+  "notes": [
+    "Replace SERVICE_NAME and layer IDs with actual values from Crown Land Atlas",
+    "Use 'where' clause to filter data",
+    "Set 'max_records' to limit dataset size",
+    "Tileset names must be unique and lowercase with underscores"
+  ]
+}

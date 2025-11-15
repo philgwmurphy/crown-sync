@@ -35,9 +35,18 @@ ENV/
 # Output files
 *.geojson
 *.csv
+
+# Config files (but allow examples)
+config.json
+config.js
+!config.example.json
+!config.example.js
+
+# Other JSON/JS files
 *.json
 !package.json
 !tsconfig.json
+!config.example.json
 
 # OS
 .DS_Store
