@@ -177,11 +177,41 @@ crown-sync/
     └── discover_and_download.py
 ```
 
+## Deployment
+
+### Deploy to Vercel (Free Hosting)
+
+Deploy your map viewer to Vercel with one click:
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fphilgwmurphy%2Fcrown-sync&env=MAPBOX_PUBLIC_TOKEN,MAPBOX_USERNAME&project-name=crown-land-atlas)
+
+Or use the CLI:
+
+```bash
+# Install Vercel CLI
+npm install -g vercel
+
+# Deploy
+vercel
+
+# Add environment variables:
+# MAPBOX_PUBLIC_TOKEN = pk.your_token
+# MAPBOX_USERNAME = your_username
+
+# Deploy to production
+vercel --prod
+```
+
+**See [VERCEL_DEPLOYMENT.md](VERCEL_DEPLOYMENT.md) for complete deployment guide.**
+
 ## Documentation
 
 - [Quick Start Guide](QUICK_START.md) - Get started in 5 minutes
 - [Web Viewer Guide](web/README.md) - Set up the interactive map
 - [Automation Guide](automation/README.md) - Schedule automatic updates
+- [Vercel Deployment](VERCEL_DEPLOYMENT.md) - Deploy to production
+- [API Access Explained](API_ACCESS_EXPLAINED.md) - Understanding API restrictions
+- [Troubleshooting](TROUBLESHOOTING.md) - Common issues and solutions
 
 ## License
 

@@ -1,0 +1,27 @@
+{
+  "name": "crown-land-atlas",
+  "version": "1.0.0",
+  "description": "Ontario Crown Land Use Policy Atlas - Interactive Map Viewer",
+  "main": "web/index.html",
+  "scripts": {
+    "dev": "cd web && python3 -m http.server 8000",
+    "deploy": "vercel --prod"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/philgwmurphy/crown-sync"
+  },
+  "keywords": [
+    "crown-land",
+    "ontario",
+    "mapbox",
+    "gis",
+    "geospatial",
+    "maps"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "vercel": "^32.0.0"
+  }
+}

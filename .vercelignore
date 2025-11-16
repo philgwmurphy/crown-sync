@@ -1,0 +1,54 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Git
+.git/
+.gitignore
+
+# Config files with secrets
+config.json
+config.js
+web/config.js
+
+# Data files
+*.geojson
+*.csv
+*.shp
+*.dbf
+*.prj
+*.shx
+
+# Logs
+*.log
+logs/
+
+# Python source files (not needed for web deployment)
+*.py
+!api/*.py
+
+# Documentation (optional - include if you want)
+# *.md
+
+# Examples
+examples/
+automation/
+diagnostics.py
+ontario_data_catalogue.py
+public_ontario_data.py
+local_data.py

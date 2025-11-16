@@ -152,16 +152,17 @@
 
 <div id="map"></div>
 
-<script src="config.js"></script>
+<script src="config.js" onerror="console.log('No config.js found, using environment variables')"></script>
+<script src="config-loader.js"></script>
 <script>
     // Initialize the map
-    mapboxgl.accessToken = CONFIG.MAPBOX_ACCESS_TOKEN;
+    mapboxgl.accessToken = APP_CONFIG.MAPBOX_ACCESS_TOKEN;
 
     const map = new mapboxgl.Map({
         container: 'map',
         style: 'mapbox://styles/mapbox/outdoors-v12',
-        center: CONFIG.DEFAULT_CENTER,
-        zoom: CONFIG.DEFAULT_ZOOM
+        center: APP_CONFIG.DEFAULT_CENTER,
+        zoom: APP_CONFIG.DEFAULT_ZOOM
     });
 
     // Add navigation controls
@@ -176,9 +177,13 @@
         document.getElementById('loading').classList.add('hidden');
 
         // Add each configured layer
-        CONFIG.LAYERS.forEach((layerConfig, index) => {
-            addCrownLandLayer(layerConfig, index);
-        });
+        if (APP_CONFIG.LAYERS && APP_CONFIG.LAYERS.length > 0) {
+            APP_CONFIG.LAYERS.forEach((layerConfig, index) => {
+                addCrownLandLayer(layerConfig, index);
+            });
+        } else {
+            console.warn('No layers configured. Add layers to your configuration.');
+        }
 
         // Set last update time
         document.getElementById('last-update').textContent = new Date().toLocaleDateString();
@@ -191,7 +196,7 @@
         // Add source
         map.addSource(sourceId, {
             type: 'vector',
-            url: `mapbox://${CONFIG.MAPBOX_USERNAME}.${layerConfig.tileset_name}`
+            url: `mapbox://${APP_CONFIG.MAPBOX_USERNAME}.${layerConfig.tileset_name}`
         });
 
         // Determine layer style based on geometry type
